@@ -3,7 +3,6 @@ package com.eudycontreras.boneslibrary.extensions
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.GradientDrawable
 import android.os.Build
-import android.util.Log
 import android.view.View
 import android.view.View.NO_ID
 import android.view.ViewGroup
@@ -17,6 +16,7 @@ import com.eudycontreras.boneslibrary.framework.bones.BoneProperties
 import com.eudycontreras.boneslibrary.framework.skeletons.SkeletonDrawable
 import com.eudycontreras.boneslibrary.properties.Bounds
 import com.eudycontreras.boneslibrary.properties.MutableColor
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import java.lang.ref.WeakReference
 
 /**
@@ -143,10 +143,14 @@ internal fun View.hasProps(propId: Int): Boolean {
 
 internal inline fun <reified T> View.saveProps(propId: Int, props: T?, weak: Boolean = false) {
     val tagValue: Any? = if (weak && props != null) {
-        Log.d("ViewExtensions", "saveProps: Saving weak reference for propId=$propId, type=${T::class.java.simpleName}")
+        FirebaseCrashlytics.getInstance().recordException(
+            Exception("SkeletonBones: saveProps() used with weak ref — propId=$propId, type=${T::class.java.simpleName}")
+        )
         WeakReference(props)
     } else {
-        Log.d("ViewExtensions", "saveProps: Saving strong reference for propId=$propId, type=${T::class.java.simpleName}")
+        FirebaseCrashlytics.getInstance().recordException(
+            Exception("SkeletonBones: saveProps() used with strong ref — propId=$propId, type=${T::class.java.simpleName}")
+        )
         props
     }
     setTag(propId, tagValue)
