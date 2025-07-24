@@ -3,6 +3,7 @@ package com.eudycontreras.boneslibrary.extensions
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.GradientDrawable
 import android.os.Build
+import android.util.Log
 import android.view.View
 import android.view.View.NO_ID
 import android.view.ViewGroup
@@ -140,13 +141,15 @@ internal fun View.hasProps(propId: Int): Boolean {
     return false
 }
 
-internal inline fun <reified T> View.saveProps(propId: Int, props: T, weak: Boolean = false) {
-    if (weak) {
-        val reference = WeakReference(props)
-        setTag(propId, reference)
+internal inline fun <reified T> View.saveProps(propId: Int, props: T?, weak: Boolean = false) {
+    val tagValue: Any? = if (weak && props != null) {
+        Log.d("ViewExtensions", "saveProps: Saving weak reference for propId=$propId, type=${T::class.java.simpleName}")
+        WeakReference(props)
     } else {
-        setTag(propId, props)
+        Log.d("ViewExtensions", "saveProps: Saving strong reference for propId=$propId, type=${T::class.java.simpleName}")
+        props
     }
+    setTag(propId, tagValue)
 }
 
 internal fun View.clearProps(propId: Int) {
